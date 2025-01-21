@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Base URL for the backend API
 const API = axios.create({
-  baseURL: 'https://invoice-backend-oq4s.onrender.com', // Replace with your backend server URL if different
+  baseURL: 'http://localhost:5000', // Replace with your backend server URL if different
 });
 
 // Add an invoice

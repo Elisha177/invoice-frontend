@@ -5,16 +5,52 @@ import Home from "./components/Home"
 import Login from "./components/Login"
 import Signup from "./components/Signup"
 import InvoiceForm from "./components/InvoiceForm"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 
 function App() {
 
   const [invoices, setInvoices] = useState([]);
 
-  const addInvoice = (newInvoice) => {
-    setInvoices((prevInvoices) => [...prevInvoices, newInvoice])
+  const addInvoice = async (newInvoice) => {
+    try {
+      const response = await fetch("http://localhost:5000/invoices", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newInvoice),
+      })
+      if (!response.ok) {
+        throw new Error('Failed to add invoice');
+      }
+
+      const savedInvoice = await response.json();
+      
+      // Update state with the new invoice
+      setInvoices(prevInvoices => [...prevInvoices, savedInvoice]);
+    } catch (error) {
+      console.error("Error adding invoice:", error);
+      throw error; // Re-throw to handle in the form component
+
+    }
   }
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/invoices"); // Updated endpoint
+        if (!response.ok) {
+          throw new Error('Failed to fetch invoices');
+        }
+        const data = await response.json();
+        setInvoices(data);
+      } catch (error) {
+        console.error("Error fetching invoices:", error);
+      }
+    };
+    fetchInvoices();
+  }, []);
 
   return (
     <div>
