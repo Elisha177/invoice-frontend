@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.light {
+    background-color: #fff;
+    color: #000;
+  }
+  
+  .dark {
+    background-color: #1a202c; /* Example dark background color */
+    color: #fff;
+  }

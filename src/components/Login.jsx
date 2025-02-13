@@ -1,21 +1,50 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import axios from 'axios'; // Import axios
+import { useTheme } from "./ThemeContext";
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
+    const [error, setError] = useState(''); // State for error messages
+    const navigate = useNavigate(); // Initialize useNavigate
+
+    const {theme} = useTheme();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(''); // Clear any previous errors
+        try {
+            const response = await axios.post('http://localhost:5000/auth/login', {
+                email,
+                password,
+            });
+
+            if (response.status === 200) {
+                const { token } = response.data; // Assuming your backend returns { token: "..." }
+                localStorage.setItem('token', token); // Store the token in localStorage
+                navigate('/'); // Redirect to the home page after successful login
+            } else {
+                setError(response.data.message || 'Login failed'); // Set a generic error message
+            }
+        } catch (error) {
+            console.error('Login failed:', error);
+            setError('Invalid credentials'); // Set an error message
+        }
+    };
 
     return (
-        <section className="bg-gray-50 dark:bg-gray-900">
+        <section className={`bg-gray-50 dark:bg-gray-900 ${theme}`}>
             <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
                 <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                         <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                             Login to your account
                         </h1>
-                        <form className="space-y-4 md:space-y-6">
+                        {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
+                        <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}> {/* Add onSubmit handler */}
                             {/* Email Field */}
                             <div>
                                 <label
@@ -92,7 +121,7 @@ const Login = () => {
                             </button>
                             {/* Sign Up Link */}
                             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                                Don’t have an account yet?{' '}
+                                Don’t have an account yet?
                                 <Link
                                     to="/signup"
                                     className="font-medium text-primary-600 hover:underline dark:text-primary-500"
